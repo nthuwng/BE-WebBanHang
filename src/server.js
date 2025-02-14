@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true })); //Parse URL-encoded bodies ( dÃ
 
 configViewEngine(app);
 
-app.use("/xyz", webRouter);
+app.use("/", webRouter);
 (async () => {
   try {
     await connection();

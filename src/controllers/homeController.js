@@ -2,12 +2,9 @@ const path = require("path");
 const express = require("express");
 const app = express();
 const User = require("../models/user");
-
+const { getALLUser } = require("../services/userServices");
 app.use(express.static(path.join(__dirname, "../public")));
 
-const checkABC = (req, res) => {
-  return res.render("samples.ejs");
-};
 const postCreateUserAPI = async (req, res) => {
   let email = req.body.email;
   let name = req.body.myname;
@@ -23,4 +20,14 @@ const postCreateUserAPI = async (req, res) => {
     data: user,
   });
 };
-module.exports = { checkABC, postCreateUserAPI };
+
+const getALLUserAPI = async (req, res) => {
+  let result = await getALLUser(req.query);
+
+  return res.status(200).json({
+    length: result.length,
+    errorCode: 0,
+    data: result,
+  });
+};
+module.exports = { postCreateUserAPI, getALLUserAPI };

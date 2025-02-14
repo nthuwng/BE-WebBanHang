@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const {
-  checkABC,
   postCreateUserAPI,
+  getALLUserAPI,
 } = require("../controllers/homeController");
 
-router.get("/abcd", checkABC);
 router.post("/user", postCreateUserAPI);
+router.get("/user", getALLUserAPI);
 
 module.exports = router;
