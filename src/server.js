@@ -3,7 +3,9 @@ const express = require("express");
 const configViewEngine = require("./config/viewEngine");
 const app = express();
 const connection = require("./config/database");
+const userRouter = require("./routes/userAPI");
 const webRouter = require("./routes/web");
+
 
 const port = process.env.PORT;
 const hostname = process.env.HOST_NAME;
@@ -13,7 +15,9 @@ app.use(express.urlencoded({ extended: true })); //Parse URL-encoded bodies ( dÃ
 
 configViewEngine(app);
 
+app.use("/user", userRouter);
 app.use("/", webRouter);
+
 (async () => {
   try {
     await connection();
