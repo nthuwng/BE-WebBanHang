@@ -13,11 +13,15 @@ const postCreateUserAPI = async (req, res) => {
   let email = req.body.email;
   let name = req.body.myname;
   let city = req.body.city;
+  let phone = req.body.phone;
+  let password = req.body.password;
 
   let user = await User.create({
     email: email,
     name: name,
     city: city,
+    phone: phone,
+    password: password,
   });
   return res.status(200).json({
     errorCode: 0,
