@@ -1,31 +1,16 @@
-const path = require("path");
-const express = require("express");
-const app = express();
-const User = require("../models/user");
 const {
   getALLUser,
   putUpdateUserServices,
   deleteUserServices,
+  postCreateUser,
 } = require("../services/userServices");
-app.use(express.static(path.join(__dirname, "../public")));
 
 const postCreateUserAPI = async (req, res) => {
-  let email = req.body.email;
-  let name = req.body.myname;
-  let city = req.body.city;
-  let phone = req.body.phone;
-  let password = req.body.password;
+  let result = await postCreateUser(req.body);
 
-  let user = await User.create({
-    email: email,
-    name: name,
-    city: city,
-    phone: phone,
-    password: password,
-  });
   return res.status(200).json({
     errorCode: 0,
-    data: user,
+    data: result,
   });
 };
 
@@ -43,7 +28,6 @@ const putUpdateUserAPI = async (req, res) => {
   let result = await putUpdateUserServices(req.body);
 
   return res.status(200).json({
-    errorCode: 0,
     data: result,
   });
 };

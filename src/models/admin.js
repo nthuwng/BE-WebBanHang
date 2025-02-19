@@ -4,7 +4,6 @@ const mongoose_delete = require("mongoose-delete");
 const userSchema = new mongoose.Schema({
   name: String,
   email: String,
-  city: String,
   phone:String,
   password: String,
 });
