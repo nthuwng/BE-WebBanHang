@@ -1,53 +1,12 @@
 const User = require("../models/user");
 const aqp = require("api-query-params");
-const Joi = require("joi");
-
-//Validation data
-const schema = Joi.object({
-  id: Joi.string().required().messages({
-    "any.required": "ID người dùng là bắt buộc",
-    "string.empty": "ID người dùng không được để trống",
-  }),
-  email: Joi.string().email().required().messages({
-    "string.email": "Email không hợp lệ",
-    "any.required": "Email là bắt buộc",
-  }),
-  name: Joi.string().min(3).max(30).required().messages({
-    "string.min": "Tên phải có ít nhất 3 ký tự",
-    "string.max": "Tên không được vượt quá 30 ký tự",
-    "any.required": "Tên là bắt buộc",
-  }),
-  city: Joi.string().required().messages({
-    "any.required": "Thành phố là bắt buộc",
-  }),
-  phone: Joi.string().pattern(new RegExp("^[0-9]{10}$")).required().messages({
-    "string.empty": "Số điện thoại không được để trống",
-    "string.pattern.base": "Số điện thoại phải có đúng 10 chữ số",
-    "any.required": "Số điện thoại là bắt buộc",
-  }),
-  password: Joi.string()
-    .pattern(new RegExp("^[A-Z][a-zA-Z0-9]{0,10}$"))
-    .required()
-    .messages({
-      "string.pattern.base":
-        "Mật khẩu phải bắt đầu bằng chữ in hoa và tối đa 10 ký tự",
-      "any.required": "Mật khẩu là bắt buộc",
-    }),
-});
-
-const validateUser = (data) => {
-  return schema.validate(data, { abortEarly: false });
-};
+const path = require("path"); //fs : file system
+const fs = require("fs");
 
 const postCreateUser = async (data) => {
   try {
-    let { error } = validateUser(data);
-    if (error) {
-      return { errorCode: 1, msg: error.details.map((err) => err.message) };
-    } else {
-      let result = await User.create(data);
-      return result;
-    }
+    let result = await User.create(data);
+    return result;
   } catch (error) {
     console.log(error);
     return null;
@@ -69,13 +28,8 @@ const getALLUser = async (queryString) => {
 
 const putUpdateUserServices = async (data) => {
   try {
-    let { error } = validateUser(data);
-    if (error) {
-      return { errorCode: 1, msg: error.details.map((err) => err.message) };
-    } else {
-      let result = await User.updateOne({ _id: data.id }, { ...data });
-      return result;
-    }
+    let result = await User.updateOne({ _id: data.id }, { ...data });
+    return result;
   } catch (error) {
     console.log(error);
     return null;
@@ -90,9 +44,69 @@ const deleteUserServices = async (data) => {
     return null;
   }
 };
+const uploadFileAvatar = async (userId, file) => {
+  try {
+    // Kiểm tra user có tồn tại không
+    const user = await User.findById(userId);
+    if (!user) {
+      return { status: "failed", message: "Không tìm thấy người dùng" };
+    }
+
+    // Kiểm tra file
+    if (!file) {
+      return { status: "failed", message: "Không có file nào được tải lên" };
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+    if (!allowedTypes.includes(file.mimetype)) {
+      return {
+        status: "failed",
+        message: "Chỉ chấp nhận file .jpg, .png, .gif",
+      };
+    }
+
+    // Kiểm tra kích thước file (5MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      return {
+        status: "failed",
+        message: "Dung lượng file không được vượt quá 5MB",
+      };
+    }
+
+    // Đường dẫn lưu avatar
+    let uploadPath = path.resolve(__dirname, "../public/images/avatar/user");
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+
+    // Tạo tên file mới
+    let extName = path.extname(file.name);
+    let baseName = path.basename(file.name, extName);
+    let finalName = `${baseName}-${Date.now()}${extName}`;
+    let finalPath = `${uploadPath}/${finalName}`;
+
+    // Lưu file vào thư mục
+    await file.mv(finalPath);
+
+    // Cập nhật avatar cho user
+    user.avatar = `/images/avatar/user/${finalName}`;
+    await user.save();
+
+    return {
+      status: "success",
+      message: "Cập nhật avatar thành công!",
+      avatar: user.avatar,
+    };
+  } catch (error) {
+    console.error("Lỗi upload avatar:", error);
+    return { status: "failed", message: "Lỗi hệ thống" };
+  }
+};
 module.exports = {
   postCreateUser,
   getALLUser,
   putUpdateUserServices,
   deleteUserServices,
+  uploadFileAvatar,
 };
