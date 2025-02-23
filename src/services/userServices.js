@@ -2,10 +2,12 @@ const User = require("../models/user");
 const aqp = require("api-query-params");
 const path = require("path"); //fs : file system
 const fs = require("fs");
+const bcrypt = require("bcrypt");
 
 const postCreateUser = async (data) => {
   try {
-    let result = await User.create(data);
+    const hashPassword = await bcrypt.hash(data.password, 10);
+    let result = await User.create({ ...data, password: hashPassword });
     return result;
   } catch (error) {
     console.log(error);
