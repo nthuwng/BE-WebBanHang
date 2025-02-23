@@ -111,7 +111,7 @@ const uploadFileAvatar = async (userId, file) => {
   }
 };
 
-const loginServices = async (email, password) => {
+const loginUserServices = async (email, password) => {
   try {
     const user = await User.findOne({ email: email });
     if (user) {
@@ -154,5 +154,5 @@ module.exports = {
   putUpdateUserServices,
   deleteUserServices,
   uploadFileAvatar,
-  loginServices,
+  loginUserServices,
 };

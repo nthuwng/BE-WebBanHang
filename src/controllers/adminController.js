@@ -4,6 +4,7 @@ const {
   deleteAdminServices,
   postCreateAdmin,
   uploadFileAvatar,
+  loginAdminServices,
 } = require("../services/adminServices");
 const {
   createAdminSchema,
@@ -83,10 +84,18 @@ const addAvatarAPI = async (req, res) => {
     return res.status(500).json({ status: "failed", message: "Lỗi hệ thống" });
   }
 };
+
+const loginAdminAPI = async (req, res) => {
+  const { email, password } = req.body;
+  const result = await loginAdminServices(email, password);
+
+  return res.status(200).json({ data: result });
+};
 module.exports = {
   postCreateAdminAPI,
   getALLAdminAPI,
   putUpdateAdminAPI,
   deleteAdminAPI,
   addAvatarAPI,
+  loginAdminAPI
 };

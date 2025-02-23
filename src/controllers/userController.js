@@ -4,7 +4,7 @@ const {
   deleteUserServices,
   postCreateUser,
   uploadFileAvatar,
-  loginServices,
+  loginUserServices,
 } = require("../services/userServices");
 const {
   createUserSchema,
@@ -87,7 +87,7 @@ const addAvatarAPI = async (req, res) => {
 
 const loginUserAPI = async (req, res) => {
   const { email, password } = req.body;
-  const result = await loginServices(email, password);
+  const result = await loginUserServices(email, password);
 
   return res.status(200).json({ data: result });
 };

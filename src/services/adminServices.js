@@ -2,10 +2,13 @@ const Admin = require("../models/admin");
 const aqp = require("api-query-params");
 const path = require("path"); //fs : file system
 const fs = require("fs");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const postCreateAdmin = async (data) => {
   try {
-    let result = await Admin.create(data);
+    const hashPassword = await bcrypt.hash(data.password, 10);
+    let result = await Admin.create({ ...data, password: hashPassword });
     return result;
   } catch (error) {
     console.log(error);
@@ -28,7 +31,12 @@ const getALLAdmin = async (queryString) => {
 
 const putUpdateAdminServices = async (data) => {
   try {
-    let result = await Admin.updateOne({ _id: data.id }, { ...data });
+    const hashPassword = await bcrypt.hash(data.password, 10);
+
+    let result = await Admin.updateOne(
+      { _id: data.id },
+      { ...data, password: hashPassword }
+    );
     return result;
   } catch (error) {
     console.log(error);
@@ -103,10 +111,48 @@ const uploadFileAvatar = async (adminId, file) => {
     return { status: "failed", message: "Lỗi hệ thống" };
   }
 };
+const loginAdminServices = async (email, password) => {
+  try {
+    const admin = await Admin.findOne({ email: email });
+    if (admin) {
+      const checkPassword = await bcrypt.compare(password, admin.password);
+      if (!checkPassword) {
+        return {
+          Error: 2,
+          ErrorMessage: "Password không đúng",
+        };
+      } else {
+        const payload = {
+          email: email,
+          name: admin.name,
+        };
+        const access_token = jwt.sign(payload, process.env.JWT_SECRET, {
+          expiresIn: process.env.JWT_EXPIRE,
+        });
+        return {
+          access_token,
+          admin: {
+            email: admin.email,
+            name: admin.name,
+          },
+        };
+      }
+    } else {
+      return {
+        Error: 1,
+        ErrorMessage: "Email không tồn tại",
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
 module.exports = {
   postCreateAdmin,
   getALLAdmin,
   putUpdateAdminServices,
   deleteAdminServices,
   uploadFileAvatar,
+  loginAdminServices,
 };
