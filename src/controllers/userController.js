@@ -3,7 +3,8 @@ const {
   putUpdateUserServices,
   deleteUserServices,
   postCreateUser,
-  uploadFileAvatar
+  uploadFileAvatar,
+  loginServices,
 } = require("../services/userServices");
 const {
   createUserSchema,
@@ -83,10 +84,18 @@ const addAvatarAPI = async (req, res) => {
     return res.status(500).json({ status: "failed", message: "Lỗi hệ thống" });
   }
 };
+
+const loginUserAPI = async (req, res) => {
+  const { email, password } = req.body;
+  const result = await loginServices(email, password);
+
+  return res.status(200).json({ data: result });
+};
 module.exports = {
   postCreateUserAPI,
   getALLUserAPI,
   putUpdateUserAPI,
   deleteUserAPI,
   addAvatarAPI,
+  loginUserAPI,
 };

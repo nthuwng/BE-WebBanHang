@@ -3,6 +3,7 @@ const aqp = require("api-query-params");
 const path = require("path"); //fs : file system
 const fs = require("fs");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const postCreateUser = async (data) => {
   try {
@@ -30,7 +31,11 @@ const getALLUser = async (queryString) => {
 
 const putUpdateUserServices = async (data) => {
   try {
-    let result = await User.updateOne({ _id: data.id }, { ...data });
+    const hashPassword = await bcrypt.hash(data.password, 10);
+    let result = await User.updateOne(
+      { _id: data.id },
+      { ...data, password: hashPassword }
+    );
     return result;
   } catch (error) {
     console.log(error);
@@ -105,10 +110,49 @@ const uploadFileAvatar = async (userId, file) => {
     return { status: "failed", message: "Lỗi hệ thống" };
   }
 };
+
+const loginServices = async (email, password) => {
+  try {
+    const user = await User.findOne({ email: email });
+    if (user) {
+      const checkPassword = await bcrypt.compare(password, user.password);
+      if (!checkPassword) {
+        return {
+          Error: 2,
+          ErrorMessage: "Password không đúng",
+        };
+      } else {
+        const payload = {
+          email: email,
+          name: user.name,
+        };
+        const access_token = jwt.sign(payload, process.env.JWT_SECRET, {
+          expiresIn: process.env.JWT_EXPIRE,
+        });
+        return {
+          access_token,
+          user: {
+            email: user.email,
+            name: user.name,
+          },
+        };
+      }
+    } else {
+      return {
+        Error: 1,
+        ErrorMessage: "Email không tồn tại",
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
 module.exports = {
   postCreateUser,
   getALLUser,
   putUpdateUserServices,
   deleteUserServices,
   uploadFileAvatar,
+  loginServices,
 };
