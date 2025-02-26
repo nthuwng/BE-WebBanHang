@@ -4,9 +4,14 @@ const configViewEngine = require("./config/viewEngine");
 const app = express();
 const connection = require("./config/database");
 const userRouter = require("./routes/userAPI");
-const adminRouter = require("./routes/adminAPI");
 const fileUpload = require("express-fileupload");
 const webRouter = require("./routes/web");
+const roleRouter = require("./routes/roleAPI");
+const payment_methodRouter = require("./routes/payment_MethodAPI");
+const categoryRouter= require("./routes/categoryAPI");
+const orderRouter= require("./routes/orderAPI");
+
+
 
 
 const port = process.env.PORT;
@@ -19,9 +24,14 @@ app.use(express.urlencoded({ extended: true })); //Parse URL-encoded bodies ( dÃ
 
 configViewEngine(app);
 
-app.use("/user", userRouter);
-app.use("/admin", adminRouter);
 app.use("/", webRouter);
+app.use("/user", userRouter);
+app.use("/role", roleRouter);
+app.use("/payment_method", payment_methodRouter);
+app.use("/category", categoryRouter);
+app.use("/order", orderRouter);
+
+
 
 (async () => {
   try {
