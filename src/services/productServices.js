@@ -28,4 +28,17 @@ const getALLProductServices = async (queryString) => {
   return result;
 };
 
-module.exports = { postProductServices, getALLProductServices };
+const putUpdateProductServices = async (data) => {
+  try {
+    let result = await Product.updateOne({ _id: data.id }, { ...data });
+    return result;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+module.exports = {
+  postProductServices,
+  getALLProductServices,
+  putUpdateProductServices,
+};

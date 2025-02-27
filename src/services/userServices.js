@@ -82,7 +82,7 @@ const uploadFileAvatar = async (userId, file) => {
     }
 
     // Đường dẫn lưu avatar
-    let uploadPath = path.resolve(__dirname, "../public/images/avatar/user");
+    let uploadPath = path.resolve(__dirname, "../public/images/avatar");
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
@@ -113,7 +113,7 @@ const uploadFileAvatar = async (userId, file) => {
 
 const loginUserServices = async (email, password) => {
   try {
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ email: email }).populate('role'); // Đảm bảo lấy thông tin role từ database
     if (user) {
       const checkPassword = await bcrypt.compare(password, user.password);
       if (!checkPassword) {
@@ -125,6 +125,7 @@ const loginUserServices = async (email, password) => {
         const payload = {
           email: email,
           name: user.name,
+          role: user.role.name, // Lấy tên role (chứ không phải ObjectId)
         };
         const access_token = jwt.sign(payload, process.env.JWT_SECRET, {
           expiresIn: process.env.JWT_EXPIRE,
@@ -134,6 +135,7 @@ const loginUserServices = async (email, password) => {
           user: {
             email: user.email,
             name: user.name,
+            role: user.role.name, // Trả về role là tên role
           },
         };
       }
@@ -148,6 +150,8 @@ const loginUserServices = async (email, password) => {
     return null;
   }
 };
+
+
 module.exports = {
   postCreateUser,
   getALLUser,
