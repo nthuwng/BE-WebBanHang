@@ -14,4 +14,19 @@ const postCartsServices = async (data) => {
     }
 };
 
-module.exports = { postCartsServices };
+const getCartsServices = async (queryString) => {
+    const page = queryString.page;
+    const { filter, limit ,population} = aqp(queryString);
+    delete filter.page;
+  
+    let offset = (page - 1) * limit;
+    let result = Carts.find(filter)
+        .populate(population)
+      .skip(offset)
+      .limit(limit)
+      .exec();
+    return result;
+  };
+  
+
+module.exports = { postCartsServices,getCartsServices };

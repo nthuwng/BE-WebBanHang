@@ -14,4 +14,20 @@ const postCreateOrderServices = async (data) => {
   }
 };
 
-module.exports = { postCreateOrderServices };
+
+const getALLOrderServices = async (queryString) => {
+  const page = queryString.page;
+  const { filter, limit ,population} = aqp(queryString);
+  delete filter.page;
+
+  let offset = (page - 1) * limit;
+  let result = Order.find(filter)
+      .populate(population)
+    .skip(offset)
+    .limit(limit)
+    .exec();
+  return result;
+};
+
+
+module.exports = { postCreateOrderServices ,getALLOrderServices};

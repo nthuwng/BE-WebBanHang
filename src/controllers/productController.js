@@ -1,4 +1,4 @@
-const { postProductServices } = require("../services/productServices");
+const { postProductServices,getALLProductServices } = require("../services/productServices");
 
 const postProductAPI = async (req, res) => {
     try {
@@ -14,7 +14,17 @@ const postProductAPI = async (req, res) => {
     }
 };
 
+const getProductAPI = async (req, res) => {
+    let result = await getALLProductServices(req.query);
+  
+    return res.status(200).json({
+      length: result.length,
+      errorCode: 0,
+      data: result,
+    });
+  };
+
 module.exports = {
-    postProductAPI,
+    postProductAPI,getProductAPI
 };
 

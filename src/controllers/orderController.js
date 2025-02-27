@@ -1,4 +1,4 @@
-const { postCreateOrderServices } = require("../services/orderServices");
+const { postCreateOrderServices ,getALLOrderServices} = require("../services/orderServices");
 
 const postOrderAPI = async (req, res) => {
   try {
@@ -7,14 +7,23 @@ const postOrderAPI = async (req, res) => {
       errorCode: 0,
       data: result,
     });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({ errorCode: 1, msg: "Lỗi server" });
   }
 };
 
-module.exports = {
-    postOrderAPI,
+const getOrderAPI = async (req, res) => {
+  let result = await getALLOrderServices(req.query);
+
+  return res.status(200).json({
+    length: result.length,
+    errorCode: 0,
+    data: result,
+  });
 };
 
+module.exports = {
+  postOrderAPI,
+  getOrderAPI,
+};
