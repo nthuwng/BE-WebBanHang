@@ -1,21 +1,27 @@
-const { postOrder_detailsServices ,getOrder_detailsServices} = require("../services/order_detailsServices");
 
-const postOrder_detailsAPI = async (req, res) => {
+const {
+    postOrder_detailsServices,
+    getALLOrder_detailsServices,
+    putUpdateOrder_detailsServices,
+    getOrder_detailsByIdServices,
+    deleteOrder_detailsServices,
+  } = require("../services/order_detailsServices");
+  
+  const postOrder_detailsAPI = async (req, res) => {
     try {
-        let result = await postOrder_detailsServices(req.body);
-        return res.status(200).json({
-            errorCode: 0,
-            data: result,
-        });
-
+      let result = await postOrder_detailsServices(req.body);
+      return res.status(200).json({
+        errorCode: 0,
+        data: result,
+      });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ errorCode: 1, msg: "Lỗi server" });
+      console.log(error);
+      res.status(500).json({ errorCode: 1, msg: "Lỗi server" });
     }
-};
-
-const getOrder_detailsAPI = async (req, res) => {
-    let result = await getOrder_detailsServices(req.query);
+  };
+  
+  const getOrder_detailsAPI = async (req, res) => {
+    let result = await getALLOrder_detailsServices(req.query);
   
     return res.status(200).json({
       length: result.length,
@@ -23,8 +29,51 @@ const getOrder_detailsAPI = async (req, res) => {
       data: result,
     });
   };
-
-module.exports = {
-    postOrder_detailsAPI,getOrder_detailsAPI
-};
-
+  
+  const updateOrder_detailsAPI = async (req, res) => {
+    try {
+      let id = req.params.id;
+      let result = await putUpdateOrder_detailsServices(id, req.body);
+  
+      return res.status(200).json({
+        errorCode: 0,
+        data: result,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ errorCode: 1, msg: "Lỗi server" });
+    }
+  };
+  
+  const getOrder_detailsByIdAPI = async (req, res) => {
+    let id = req.params.id;
+    let result = await getOrder_detailsByIdServices(id);
+  
+    return res.status(200).json({
+      errorCode: 0,
+      data: result,
+    });
+  };
+  
+  const deleteOrder_detailsAPI = async (req, res) => {
+    let id = req.params.id;
+    let result = await deleteOrder_detailsServices(id);
+    if (!result) {
+      return res
+        .status(404)
+        .json({ errorCode: 1 });
+    }
+    return res.status(200).json({
+      errorCode: 0,
+      data: result,
+    });
+  };
+  
+  module.exports = {
+    postOrder_detailsAPI,
+    getOrder_detailsAPI,
+    updateOrder_detailsAPI,
+    getOrder_detailsByIdAPI,
+    deleteOrder_detailsAPI,
+  };
+  

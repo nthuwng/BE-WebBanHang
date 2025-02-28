@@ -1,21 +1,26 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-// Middleware để xác thực người dùng
-const authUserMiddleware = (req, res, next) => {
-    const token = req.headers['authorization'];
+const checkAdminMiddleware = (req, res, next) => {
+  const token = req.headers["authorization"]; // Lấy token từ header Authorization
 
-    if (!token) {
-        return res.status(403).json({ message: 'Không có token, truy cập bị từ chối' });
+  if (!token) {
+    return res.status(403).json({ message: "Không có quyền truy cập" });
+  }
+
+  try {
+    // Tách "Bearer" ra khỏi token
+    const decoded = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET);
+
+    // Kiểm tra role người dùng
+    if (decoded.role !== "admin") {
+      return res.status(403).json({ message: "Bạn không có quyền admin" });
     }
 
-    try {
-        // Xác thực JWT
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;  // Gắn thông tin người dùng vào request
-        next();  // Chuyển sang bước tiếp theo (controller)
-    } catch (error) {
-        return res.status(401).json({ message: 'Token không hợp lệ hoặc hết hạn' });
-    }
+    req.user = decoded; // Gắn thông tin người dùng vào request
+    next(); // Tiếp tục xử lý
+  } catch (error) {
+    return res.status(500).json({ message: "Token không hợp lệ hoặc hết hạn" });
+  }
 };
 
-module.exports = authUserMiddleware;
+module.exports = checkAdminMiddleware;

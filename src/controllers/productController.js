@@ -2,6 +2,8 @@ const {
   postProductServices,
   getALLProductServices,
   putUpdateProductServices,
+  getProductByIdServices,
+  deleteProductServices,
 } = require("../services/productServices");
 
 const postProductAPI = async (req, res) => {
@@ -29,7 +31,8 @@ const getProductAPI = async (req, res) => {
 
 const updateProductAPI = async (req, res) => {
   try {
-    let result = await putUpdateProductServices(req.body);
+    let id = req.params.id;
+    let result = await putUpdateProductServices(id, req.body);
 
     return res.status(200).json({
       errorCode: 0,
@@ -41,8 +44,35 @@ const updateProductAPI = async (req, res) => {
   }
 };
 
+const getProductByIdAPI = async (req, res) => {
+  let id = req.params.id;
+  let result = await getProductByIdServices(id);
+
+  return res.status(200).json({
+    errorCode: 0,
+    data: result,
+  });
+};
+
+const deleteProductAPI = async (req, res) => {
+  let id = req.params.id;
+  let result = await deleteProductServices(id);
+  if (!result) {
+    return res
+      .status(404)
+      .json({ errorCode: 1, msg: "Sản phẩm không tồn tại" });
+  }
+  return res.status(200).json({
+    errorCode: 0,
+    msg: "Sản phẩm đã được xóa thành công",
+    data: result,
+  });
+};
+
 module.exports = {
   postProductAPI,
   getProductAPI,
   updateProductAPI,
+  getProductByIdAPI,
+  deleteProductAPI,
 };

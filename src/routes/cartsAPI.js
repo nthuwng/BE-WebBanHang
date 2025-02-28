@@ -1,11 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const {
-    postCartsAPI,getCartsAPI
+  postCartAPI,
+  getCartAPI,
+  getCartByIdAPI,
+  updateCartAPI,
+  deleteCartAPI,
 } = require("../controllers/cartsController");
+const checkAdminMiddleware = require("../middleware/authMiddleware");
 
-router.post("/createCategory", postCartsAPI);
-router.get("/getCategory", getCartsAPI);
-
+router.post("/createCart", postCartAPI);
+router.get("/getCart", getCartAPI);
+router.get("/getCart/:id", getCartByIdAPI);
+router.put("/updateCart/:id", checkAdminMiddleware, updateCartAPI);
+router.delete("/deleteCart/:id", checkAdminMiddleware, deleteCartAPI);
 
 module.exports = router;

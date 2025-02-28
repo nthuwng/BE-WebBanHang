@@ -1,7 +1,5 @@
-const Shipping_address = require("../models/shipping_address");
+const Shipping_address = require("../models/Shipping_address");
 const aqp = require("api-query-params");
-const path = require("path"); //fs : file systemconst fs = require("fs");
-const bcrypt = require("bcrypt");
 
 const postShipping_addressServices = async (data) => {
   try {
@@ -13,7 +11,7 @@ const postShipping_addressServices = async (data) => {
   }
 };
 
-const getShipping_addressServices = async (queryString) => {
+const getALLShipping_addressServices = async (queryString) => {
   const page = queryString.page;
   const { filter, limit, population } = aqp(queryString);
   delete filter.page;
@@ -27,4 +25,41 @@ const getShipping_addressServices = async (queryString) => {
   return result;
 };
 
-module.exports = { postShipping_addressServices, getShipping_addressServices };
+const putUpdateShipping_addressServices = async (id, data) => {
+  try {
+    let result = await Shipping_address.updateOne({ _id: id }, { ...data });
+    return result;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+const getShipping_addressByIdServices = async (id) => {
+  try {
+    let result = Shipping_address.findById(id);
+    return result;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+const deleteShipping_addressServices = async (id) => {
+  try {
+    let result = await Shipping_address.deleteById({ _id: id });
+    if (!result) {
+      return null; // Nếu không tìm thấy sản phẩm, trả về null
+    } else return result;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+module.exports = {
+  postShipping_addressServices,
+  getALLShipping_addressServices,
+  putUpdateShipping_addressServices,
+  getShipping_addressByIdServices,
+  deleteShipping_addressServices,
+};
