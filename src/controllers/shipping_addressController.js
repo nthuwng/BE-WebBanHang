@@ -36,7 +36,6 @@ const updateShipping_addressAPI = async (req, res) => {
 
     return res.status(200).json({
       errorCode: 0,
-      msg: "Cập nhật giỏ hàng thành công",
       data: result,
     });
   } catch (error) {

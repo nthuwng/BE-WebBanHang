@@ -27,7 +27,7 @@ const getALLShipping_addressServices = async (queryString) => {
 
 const putUpdateShipping_addressServices = async (id, data) => {
   try {
-    let result = await Shipping_address.updateOne({ _id: id }, { ...data });
+    let result = await Shipping_address.findByIdAndUpdate(id, data, { new: true }).exec();
     return result;
   } catch (error) {
     console.log(error);
@@ -47,7 +47,7 @@ const getShipping_addressByIdServices = async (id) => {
 
 const deleteShipping_addressServices = async (id) => {
   try {
-    let result = await Shipping_address.deleteById({ _id: id });
+    let result = await Shipping_address.findByIdAndUpdate(id,{ deleted: true },{ new: true });
     if (!result) {
       return null; // Nếu không tìm thấy sản phẩm, trả về null
     } else return result;
