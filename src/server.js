@@ -4,7 +4,7 @@ const configViewEngine = require("./config/viewEngine");
 const connection = require("./config/database");
 const fileUpload = require("express-fileupload");
 const routers = require("./routes/web");
-
+const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 3000;
 const hostname = process.env.HOST_NAME || "localhost";
@@ -12,6 +12,7 @@ const hostname = process.env.HOST_NAME || "localhost";
 app.use(fileUpload());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 configViewEngine(app);
 routers(app); //
