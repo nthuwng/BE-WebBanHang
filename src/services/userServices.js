@@ -4,6 +4,7 @@ const path = require("path"); //fs : file system
 const fs = require("fs");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const role = require("../models/role");
 
 const postCreateUser = async (data) => {
   try {
@@ -113,7 +114,7 @@ const uploadFileAvatar = async (userId, file) => {
 
 const loginUserServices = async (email, password) => {
   try {
-    const user = await User.findOne({ email: email }).populate('role'); // Đảm bảo lấy thông tin role từ database
+    const user = await User.findOne({ email: email }).populate('role');
     if (user) {
       const checkPassword = await bcrypt.compare(password, user.password);
       if (!checkPassword) {
@@ -151,6 +152,18 @@ const loginUserServices = async (email, password) => {
   }
 };
 
+const registerAPI = async(data) => {
+  try {
+    const hashPassword = await bcrypt.hash(data.password, 10);
+    const clientRole = await role.findOne({ name: "client" });
+    let result = await User.create({ ...data, password: hashPassword,role:clientRole._id });
+    return result;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
 
 module.exports = {
   postCreateUser,
@@ -158,5 +171,5 @@ module.exports = {
   putUpdateUserServices,
   deleteUserServices,
   uploadFileAvatar,
-  loginUserServices,
+  loginUserServices,registerAPI
 };

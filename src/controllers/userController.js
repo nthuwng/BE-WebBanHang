@@ -5,6 +5,7 @@ const {
   postCreateUser,
   uploadFileAvatar,
   loginUserServices,
+  registerAPI,
 } = require("../services/userServices");
 const {
   createUserSchema,
@@ -91,6 +92,26 @@ const loginUserAPI = async (req, res) => {
 
   return res.status(200).json({ data: result });
 };
+
+const registerUserAPI = async (req, res) => {
+  try {
+    let { error } = createUserSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({
+        errorCode: 1,
+        msg: error.details.map((err) => err.message),
+      });
+    }
+
+    let result = await registerAPI(req.body);
+    return res.status(200).json({
+      data: result,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ errorCode: 1, msg: "Lỗi server" });
+  }
+};
 module.exports = {
   postCreateUserAPI,
   getALLUserAPI,
@@ -98,4 +119,5 @@ module.exports = {
   deleteUserAPI,
   addAvatarAPI,
   loginUserAPI,
+  registerUserAPI,
 };
