@@ -17,7 +17,13 @@ const postCreateUser = async (data) => {
       });
     }
     const hashPassword = await bcrypt.hash(data.password, 10);
-
+    const checkEmail = await User.findOne({ email: data.email });
+    if (checkEmail != null) {
+      return {
+        Error: 2,
+        msg: "Email đã tồn tại",
+      };
+    }
     let result = await User.create({ ...data, password: hashPassword });
     return result;
   } catch (error) {
@@ -164,7 +170,6 @@ const loginUserServices = async (email, password) => {
 const registerAPI = async (data) => {
   try {
     const hashPassword = await bcrypt.hash(data.password, 10);
-    const clientRole = await role.findOne({ name: "client" });
     let { error } = createUserSchema.validate(data, { abortEarly: false });
     if (error) {
       return {
@@ -172,7 +177,15 @@ const registerAPI = async (data) => {
         msg: error.details.map((err) => err.message),
       };
     }
+    const checkEmail = await User.findOne({ email: data.email });
+    if (checkEmail != null) {
+      return {
+        Error: 2,
+        msg: "Email đã tồn tại",
+      };
+    }
 
+    const clientRole = await role.findOne({ name: "client" });
     let result = await User.create({
       ...data,
       password: hashPassword,
