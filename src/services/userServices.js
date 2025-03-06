@@ -5,10 +5,19 @@ const fs = require("fs");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const role = require("../models/role");
+const { createUserSchema } = require("../validation/user.validation");
 
 const postCreateUser = async (data) => {
   try {
+    let { error } = createUserSchema.validate(data, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({
+        Error: 1,
+        msg: error.details.map((err) => err.message),
+      });
+    }
     const hashPassword = await bcrypt.hash(data.password, 10);
+
     let result = await User.create({ ...data, password: hashPassword });
     return result;
   } catch (error) {
@@ -114,13 +123,13 @@ const uploadFileAvatar = async (userId, file) => {
 
 const loginUserServices = async (email, password) => {
   try {
-    const user = await User.findOne({ email: email }).populate('role');
+    const user = await User.findOne({ email: email }).populate("role");
     if (user) {
       const checkPassword = await bcrypt.compare(password, user.password);
       if (!checkPassword) {
         return {
           Error: 2,
-          ErrorMessage: "Password không đúng",
+          msg: "Mật khẩu không đúng",
         };
       } else {
         const payload = {
@@ -143,7 +152,7 @@ const loginUserServices = async (email, password) => {
     } else {
       return {
         Error: 1,
-        ErrorMessage: "Email không tồn tại",
+        msg: "Email không tồn tại",
       };
     }
   } catch (error) {
@@ -152,18 +161,29 @@ const loginUserServices = async (email, password) => {
   }
 };
 
-const registerAPI = async(data) => {
+const registerAPI = async (data) => {
   try {
     const hashPassword = await bcrypt.hash(data.password, 10);
     const clientRole = await role.findOne({ name: "client" });
-    let result = await User.create({ ...data, password: hashPassword,role:clientRole._id });
+    let { error } = createUserSchema.validate(data, { abortEarly: false });
+    if (error) {
+      return {
+        Error: 1,
+        msg: error.details.map((err) => err.message),
+      };
+    }
+
+    let result = await User.create({
+      ...data,
+      password: hashPassword,
+      role: clientRole._id,
+    });
     return result;
   } catch (error) {
     console.log(error);
     return null;
   }
-}
-
+};
 
 module.exports = {
   postCreateUser,
@@ -171,5 +191,6 @@ module.exports = {
   putUpdateUserServices,
   deleteUserServices,
   uploadFileAvatar,
-  loginUserServices,registerAPI
+  loginUserServices,
+  registerAPI,
 };
