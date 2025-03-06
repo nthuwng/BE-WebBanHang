@@ -4,6 +4,7 @@ const {
   putUpdateProductServices,
   getProductByIdServices,
   deleteProductServices,
+  uploadFileProduct,
 } = require("../services/productServices");
 
 const postProductAPI = async (req, res) => {
@@ -54,6 +55,20 @@ const getProductByIdAPI = async (req, res) => {
   });
 };
 
+const addImageProductAPI = async (req, res) => {
+  try {
+    const productId = req.query.id;
+    const file = req.files?.image;
+
+    const result = await uploadFileProduct(productId, file);
+
+    return res.status(result.status === "success" ? 200 : 400).json(result);
+  } catch (error) {
+    console.error("Lỗi API upload ảnh product:", error);
+    return res.status(500).json({ status: "failed", message: "Lỗi hệ thống" });
+  }
+};
+
 const deleteProductAPI = async (req, res) => {
   let id = req.params.id;
   let result = await deleteProductServices(id);
@@ -73,6 +88,7 @@ module.exports = {
   postProductAPI,
   getProductAPI,
   updateProductAPI,
+  addImageProductAPI,
   getProductByIdAPI,
   deleteProductAPI,
 };

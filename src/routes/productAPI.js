@@ -3,11 +3,15 @@ const router = express.Router();
 const {
   postProductAPI,
   getProductAPI,
-  updateProductAPI,getProductByIdAPI,deleteProductAPI,
+  updateProductAPI,
+  getProductByIdAPI,
+  deleteProductAPI,
+  addImageProductAPI,
 } = require("../controllers/productController");
 const checkAdminMiddleware = require("../middleware/authMiddleware");
 
 router.post("/createProduct", postProductAPI);
+router.post("/addImgProduct", addImageProductAPI);
 router.get("/getProduct", getProductAPI);
 router.get("/getProduct/:id", getProductByIdAPI);
 router.put("/updateProduct/:id", checkAdminMiddleware, updateProductAPI);

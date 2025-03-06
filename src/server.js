@@ -8,7 +8,9 @@ const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 3000;
 const hostname = process.env.HOST_NAME || "localhost";
+const path = require("path");
 
+app.use("/images", express.static(path.join(__dirname, "public/images")));
 app.use(fileUpload());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
