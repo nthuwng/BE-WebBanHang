@@ -95,14 +95,6 @@ const loginUserAPI = async (req, res) => {
 
 const registerUserAPI = async (req, res) => {
   try {
-    let { error } = createUserSchema.validate(req.body, { abortEarly: false });
-    if (error) {
-      return res.status(400).json({
-        errorCode: 1,
-        msg: error.details.map((err) => err.message),
-      });
-    }
-
     let result = await registerAPI(req.body);
     return res.status(200).json({
       data: result,
