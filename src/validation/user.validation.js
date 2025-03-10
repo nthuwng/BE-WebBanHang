@@ -11,10 +11,10 @@ const createUserSchema = Joi.object({
     "string.max": "Tên không được vượt quá 30 ký tự",
     "any.required": "Tên là bắt buộc",
   }),
-  address: Joi.string().required().messages({
+  address: Joi.string().messages({
     "any.required": "Địa chỉ là bắt buộc",
   }),
-  phone: Joi.string().pattern(new RegExp("^[0-9]{10}$")).required().messages({
+  phone: Joi.string().pattern(new RegExp("^[0-9]{10}$")).messages({
     "string.empty": "Số điện thoại không được để trống",
     "string.pattern.base": "Số điện thoại phải có đúng 10 chữ số",
     "any.required": "Số điện thoại là bắt buộc",
