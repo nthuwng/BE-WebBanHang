@@ -7,6 +7,7 @@ const {
   getProductByIdAPI,
   deleteProductAPI,
   addImageProductAPI,
+  getProductAPI_Name,
 } = require("../controllers/productController");
 const checkAdminMiddleware = require("../middleware/authMiddleware");
 
@@ -16,5 +17,6 @@ router.get("/getProduct", getProductAPI);
 router.get("/getProduct/:id", getProductByIdAPI);
 router.put("/updateProduct/:id", checkAdminMiddleware, updateProductAPI);
 router.delete("/deleteProduct/:id", checkAdminMiddleware, deleteProductAPI);
+router.get("/getProductIphone/:name", getProductAPI_Name);
 
 module.exports = router;

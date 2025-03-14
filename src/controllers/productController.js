@@ -1,3 +1,4 @@
+const { Query } = require("mongoose");
 const {
   postProductServices,
   getALLProductServices,
@@ -5,6 +6,7 @@ const {
   getProductByIdServices,
   deleteProductServices,
   uploadFileProduct,
+  getProductAPI_Name_services
 } = require("../services/productServices");
 
 const postProductAPI = async (req, res) => {
@@ -22,6 +24,17 @@ const postProductAPI = async (req, res) => {
 
 const getProductAPI = async (req, res) => {
   let result = await getALLProductServices(req.query);
+
+  return res.status(200).json({
+    length: result.length,
+    errorCode: 0,
+    data: result,
+  });
+};
+
+const getProductAPI_Name = async (req, res) => {
+  let name = req.params.name;
+  const result = await getProductAPI_Name_services(name,req.query);
 
   return res.status(200).json({
     length: result.length,
@@ -91,4 +104,5 @@ module.exports = {
   addImageProductAPI,
   getProductByIdAPI,
   deleteProductAPI,
+  getProductAPI_Name,
 };

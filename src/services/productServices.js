@@ -1,8 +1,8 @@
 const Product = require("../models/product");
+const Category = require("../models/category");
 const aqp = require("api-query-params");
 const path = require("path"); //fs : file system
 const fs = require("fs");
-
 
 const postProductServices = async (data) => {
   try {
@@ -26,6 +26,30 @@ const getALLProductServices = async (queryString) => {
     .limit(limit)
     .exec();
   return result;
+};
+
+const getProductAPI_Name_services = async (name, queryString) => {
+  try {
+    const page = queryString.page;
+    const { filter, limit } = aqp(queryString);
+    delete filter.page;
+
+    const skip = (page - 1) * limit;
+
+    const category = await Category.findOne({ name: new RegExp(name, "i") });
+
+    filter.category = category._id;
+    if (category) {
+      const result = await Product.find(filter)
+        .skip(skip)
+        .limit(limit)
+        .exec();
+      return result;
+    }
+  } catch (error) {
+    console.error("Lỗi upload image:", error);
+    return { status: "failed", message: "Lỗi hệ thống" };
+  }
 };
 
 const putUpdateProductServices = async (id, data) => {
@@ -133,4 +157,5 @@ module.exports = {
   getProductByIdServices,
   deleteProductServices,
   uploadFileProduct,
+  getProductAPI_Name_services,
 };
