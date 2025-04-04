@@ -28,6 +28,7 @@ const createUserSchema = Joi.object({
       "any.required": "Mật khẩu là bắt buộc",
     }),
   role: Joi.string(),
+  cart: Joi.string(),
 });
 
 // Schema cập nhật User (Cần ID)

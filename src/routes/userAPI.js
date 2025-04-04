@@ -7,7 +7,8 @@ const {
   deleteUserAPI,
   addAvatarAPI,
   loginUserAPI,
-  registerUserAPI
+  registerUserAPI,
+  getAccountAPI,
 } = require("../controllers/userController");
 
 router.post("/createUser", postCreateUserAPI);
@@ -17,5 +18,6 @@ router.delete("/deleteUser", deleteUserAPI);
 router.post("/addAvatar", addAvatarAPI);
 router.post("/sign-in", loginUserAPI);
 router.post("/sign-up", registerUserAPI);
+router.get("/account", getAccountAPI);
 
 module.exports = router;

@@ -1,10 +1,11 @@
-
 const {
   postCartServices,
   getALLCartServices,
   putUpdateCartServices,
   getCartByIdServices,
   deleteCartServices,
+  handleAddProductToCart,
+  getCartByUserIDServices,
 } = require("../services/CartsServices");
 
 const postCartAPI = async (req, res) => {
@@ -20,6 +21,18 @@ const postCartAPI = async (req, res) => {
   }
 };
 
+const postAddProductToCart = async (req, res) => {
+  const { userID, productID, quantity } = req.body;
+  const result = await handleAddProductToCart(userID, productID, quantity);
+  if (result) {
+    return res.status(200).json({ success: true, cart: result });
+  } else {
+    return res
+      .status(500)
+      .json({ success: false, message: "Error adding product to cart" });
+  }
+};
+
 const getCartAPI = async (req, res) => {
   let result = await getALLCartServices(req.query);
 
@@ -29,7 +42,15 @@ const getCartAPI = async (req, res) => {
     data: result,
   });
 };
+const getCartByUserID = async (req, res) => {
+  let userID = req.params.id;
+  let result = await getCartByUserIDServices(userID);
 
+  return res.status(200).json({
+    errorCode: 0,
+    data: result,
+  });
+};
 const updateCartAPI = async (req, res) => {
   try {
     let id = req.params.id;
@@ -77,4 +98,6 @@ module.exports = {
   updateCartAPI,
   getCartByIdAPI,
   deleteCartAPI,
+  postAddProductToCart,
+  getCartByUserID,
 };
