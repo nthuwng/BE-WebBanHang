@@ -14,80 +14,66 @@ const postCartServices = async (data) => {
     return null;
   }
 };
-const handleAddProductToCart = async (userId, productId, quantity) => {
+const handleAddProductToCart = async (userID, productID, quantity) => {
   try {
     // Tìm người dùng
-    const user = await User.findById(userId);
+    const user = await User.findById(userID);
     if (!user) {
       return { success: false, message: "User not found" };
     }
 
-    // Kiểm tra giỏ hàng của người dùng
-    let cart = await Cart.findOne({ user: userId, status: "active" }).populate(
-      "cartDetails"
-    );
-
+    // Tìm giỏ hàng active
+    let cart = await Cart.findOne({ user: userID, status: "active" });
     if (!cart) {
-      // Nếu người dùng chưa có giỏ hàng, tạo mới giỏ hàng
       cart = new Cart({
-        user: userId,
+        user: userID,
         total_price: 0,
         sum: 0,
-        cartDetails: [],
       });
       await cart.save();
 
-      // Gán giỏ hàng vào người dùng
       user.cart = cart._id;
       await user.save();
     }
 
-    // Kiểm tra sản phẩm có tồn tại không
-    const product = await Product.findById(productId);
+    // Kiểm tra sản phẩm
+    const product = await Product.findById(productID);
     if (!product) {
       return { success: false, message: "Product not found" };
     }
 
-    // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+    // Kiểm tra sản phẩm đã có trong giỏ chưa
     let cartDetail = await CartDetail.findOne({
       cart: cart._id,
-      product: productId,
+      product: productID,
     });
 
     if (!cartDetail) {
-      // Nếu sản phẩm chưa có trong giỏ, thêm sản phẩm mới vào giỏ hàng
+      // Nếu chưa có, tạo mới
       cartDetail = new CartDetail({
         cart: cart._id,
-        product: productId,
-        quantity: quantity,
+        product: productID,
+        quantity: Number(quantity),
         price: product.price,
       });
       await cartDetail.save();
-
-      // Thêm chi tiết sản phẩm vào giỏ hàng
-      cart.cartDetails.push(cartDetail._id);
-      cart.sum = (cart.sum || 0) + 1; // Đảm bảo sum là một số hợp lệ
-      cart.total_price =
-        (cart.total_price || 0) + product.price * Number(quantity); // Cập nhật tổng giá trị giỏ hàng
     } else {
-      // Nếu sản phẩm đã có trong giỏ, cập nhật số lượng
-      cartDetail.quantity = (cartDetail.quantity || 0) + Number(quantity);
+      // Nếu đã có, cập nhật số lượng
+      cartDetail.quantity += Number(quantity);
       await cartDetail.save();
-
-      // Cập nhật lại tổng số lượng và tổng giá trị giỏ hàng
-      cart.sum = cart.cartDetails.length; // Cập nhật lại tổng số sản phẩm trong giỏ hàng
-      cart.total_price = 0; // Reset tổng giá trị giỏ hàng
-
-      // Duyệt qua các cartDetail và tính lại tổng giá trị
-      for (let i = 0; i < cart.cartDetails.length; i++) {
-        const detail = await CartDetail.findById(cart.cartDetails[i]);
-        if (detail) {
-          cart.total_price += detail.quantity * detail.price;
-        }
-      }
     }
 
-    // Lưu giỏ hàng sau khi cập nhật
+    // Lấy toàn bộ chi tiết giỏ hàng để tính lại
+    const allDetails = await CartDetail.find({ cart: cart._id });
+
+    // Tổng số loại sản phẩm khác nhau
+    cart.sum = allDetails.length;
+
+    // Tổng tiền
+    cart.total_price = allDetails.reduce((total, item) => {
+      return total + item.quantity * item.price;
+    }, 0);
+
     const updatedCart = await cart.save();
     return { success: true, cart: updatedCart };
   } catch (error) {

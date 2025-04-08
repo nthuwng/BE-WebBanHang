@@ -10,7 +10,7 @@ const cartSchema = new mongoose.Schema(
       enum: ["active", "checked_out"],
       default: "active",
     },
-    cartDetails: [{ type: mongoose.Schema.Types.ObjectId, ref: "CartDetail" }],
+    // cartDetails: [{ type: mongoose.Schema.Types.ObjectId, ref: "CartDetail" }],
     create_at: { type: Date, default: Date.now },
     sum: { type: Number, default: 0 },
   },
