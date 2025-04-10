@@ -1,4 +1,7 @@
 const Cart_details = require("../models/Cart_details");
+const Cart = require("../models/Carts");
+const User = require("../models/user");
+
 const aqp = require("api-query-params");
 
 const postCart_detailsServices = async (data) => {
@@ -23,6 +26,31 @@ const getALLCart_detailsServices = async (queryString) => {
     .limit(limit)
     .exec();
   return result;
+};
+
+const getCart_details_ByUserIdServices = async (queryString) => {
+  const userId = queryString.userId;
+
+  // Tìm người dùng theo userId
+  const user = await User.findById(userId);
+  if (!user) {
+    console.log("Không có người dùng với userId:", userId);
+    return [];
+  } else {
+    const carts = await Cart.find({ user: userId });
+
+    if (carts.length === 0) {
+      console.log("Không có giỏ hàng nào cho người dùng");
+      return [];
+    }
+
+    // Lấy các CartDetail liên quan đến tất cả các giỏ hàng của người dùng
+    const cartDetails = await Cart_details.find({cart: carts})
+      .populate("product")
+      .exec();
+
+    return cartDetails;
+  }
 };
 
 const putUpdateCart_detailsServices = async (id, data) => {
@@ -69,4 +97,5 @@ module.exports = {
   putUpdateCart_detailsServices,
   getCart_detailsByIdServices,
   deleteCart_detailsServices,
+  getCart_details_ByUserIdServices,
 };

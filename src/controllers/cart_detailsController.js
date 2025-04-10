@@ -1,10 +1,10 @@
-
 const {
   postCart_detailsServices,
   getALLCart_detailsServices,
   putUpdateCart_detailsServices,
   getCart_detailsByIdServices,
   deleteCart_detailsServices,
+  getCart_details_ByUserIdServices,
 } = require("../services/cart_detailsServices");
 
 const postCart_detailsAPI = async (req, res) => {
@@ -22,6 +22,15 @@ const postCart_detailsAPI = async (req, res) => {
 
 const getCart_detailsAPI = async (req, res) => {
   let result = await getALLCart_detailsServices(req.query);
+
+  return res.status(200).json({
+    length: result.length,
+    errorCode: 0,
+    data: result,
+  });
+};
+const getCart_details_ByUserId = async (req, res) => {
+  let result = await getCart_details_ByUserIdServices(req.query);
 
   return res.status(200).json({
     length: result.length,
@@ -59,9 +68,7 @@ const deleteCart_detailsAPI = async (req, res) => {
   let id = req.params.id;
   let result = await deleteCart_detailsServices(id);
   if (!result) {
-    return res
-      .status(404)
-      .json({ errorCode: 1 });
+    return res.status(404).json({ errorCode: 1 });
   }
   return res.status(200).json({
     errorCode: 0,
@@ -75,4 +82,5 @@ module.exports = {
   updateCart_detailsAPI,
   getCart_detailsByIdAPI,
   deleteCart_detailsAPI,
+  getCart_details_ByUserId,
 };
