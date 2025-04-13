@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const mongoose_delete = require("mongoose-delete");
+// const mongoose_delete = require("mongoose-delete");
 
 const cartDetailSchema = new mongoose.Schema({
   cart: { type: mongoose.Schema.Types.ObjectId, ref: "Cart", required: true },
@@ -11,6 +11,6 @@ const cartDetailSchema = new mongoose.Schema({
   quantity: { type: Number, required: true },
   price: { type: Number, required: true },
 });
-cartDetailSchema.plugin(mongoose_delete, { overrideMethods: "all" });
+// cartDetailSchema.plugin(mongoose_delete, { overrideMethods: "all" });
 
 module.exports = mongoose.model("CartDetail", cartDetailSchema);

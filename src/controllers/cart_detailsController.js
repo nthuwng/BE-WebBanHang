@@ -42,7 +42,8 @@ const getCart_details_ByUserId = async (req, res) => {
 const updateCart_detailsAPI = async (req, res) => {
   try {
     let id = req.params.id;
-    let result = await putUpdateCart_detailsServices(id, req.body);
+    const { productId, quantity } = req.body;
+    let result = await putUpdateCart_detailsServices(id, productId, quantity);
 
     return res.status(200).json({
       errorCode: 0,
@@ -65,8 +66,8 @@ const getCart_detailsByIdAPI = async (req, res) => {
 };
 
 const deleteCart_detailsAPI = async (req, res) => {
-  let id = req.params.id;
-  let result = await deleteCart_detailsServices(id);
+  const { id, userId } = req.body;
+  let result = await deleteCart_detailsServices(id, userId);
   if (!result) {
     return res.status(404).json({ errorCode: 1 });
   }
