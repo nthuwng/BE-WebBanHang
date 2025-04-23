@@ -1,15 +1,31 @@
-
 const {
   postOrderServices,
   getALLOrderServices,
   putUpdateOrderServices,
-  getOrderByIdServices,
+  getOrderByUserIdAPIServices,
   deleteOrderServices,
 } = require("../services/orderServices");
 
 const postOrderAPI = async (req, res) => {
   try {
-    let result = await postOrderServices(req.body);
+    const {
+      userID,
+      payment_method_id,
+      total_price,
+      products,
+      shipping_address,
+      email,
+      phone,
+    } = req.body;
+    let result = await postOrderServices(
+      userID,
+      payment_method_id,
+      total_price,
+      products,
+      shipping_address,
+      email,
+      phone
+    );
     return res.status(200).json({
       errorCode: 0,
       data: result,
@@ -46,11 +62,12 @@ const updateOrderAPI = async (req, res) => {
   }
 };
 
-const getOrderByIdAPI = async (req, res) => {
-  let id = req.params.id;
-  let result = await getOrderByIdServices(id);
+const getOrderByUserIdAPI = async (req, res) => {
+  let userId = req.params.id;
+  let result = await getOrderByUserIdAPIServices(userId);
 
   return res.status(200).json({
+    length: result.length,
     errorCode: 0,
     data: result,
   });
@@ -75,6 +92,6 @@ module.exports = {
   postOrderAPI,
   getOrderAPI,
   updateOrderAPI,
-  getOrderByIdAPI,
+  getOrderByUserIdAPI,
   deleteOrderAPI,
 };

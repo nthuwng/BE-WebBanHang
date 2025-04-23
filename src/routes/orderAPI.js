@@ -3,7 +3,7 @@ const router = express.Router();
 const {
   postOrderAPI,
   getOrderAPI,
-  getOrderByIdAPI,
+  getOrderByUserIdAPI,
   updateOrderAPI,
   deleteOrderAPI,
 } = require("../controllers/orderController");
@@ -11,7 +11,7 @@ const checkAdminMiddleware = require("../middleware/authMiddleware");
 
 router.post("/createOrder", postOrderAPI);
 router.get("/getOrder", getOrderAPI);
-router.get("/getOrder/:id", getOrderByIdAPI);
+router.get("/getOrderByUserID/:id", getOrderByUserIdAPI);
 router.put("/updateOrder/:id", checkAdminMiddleware, updateOrderAPI);
 router.delete("/deleteOrder/:id", checkAdminMiddleware, deleteOrderAPI);
 

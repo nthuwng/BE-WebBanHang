@@ -1,13 +1,56 @@
+const Order_details = require("../models/Order_details");
 const Order = require("../models/order");
+const Shipping_address = require("../models/Shipping_address");
 const aqp = require("api-query-params");
 
-const postOrderServices = async (data) => {
+const postOrderServices = async (
+  userID, // userID truyền từ frontend
+  payment_method_id,
+  total_price,
+  products,
+  shipping_address,
+  email,
+  phone
+) => {
   try {
-    let result = await Order.create(data);
-    return result;
+    // Kiểm tra xem userID có tồn tại không
+    if (!userID) {
+      throw new Error("User is not authenticated");
+    }
+    // Tạo đơn hàng
+    const newOrderData = {
+      user: userID, // Lấy userID thay vì req.user.id
+      payment_method: payment_method_id,
+      total_price,
+      status: "pending", // Trạng thái đơn hàng mặc định
+    };
+
+    const savedOrder = await Order.create(newOrderData); // Lưu đơn hàng vào cơ sở dữ liệu
+
+    // Tạo chi tiết đơn hàng cho từng sản phẩm trong giỏ hàng
+    const orderDetails = products.map((product) => ({
+      order: savedOrder._id, // ID đơn hàng đã lưu
+      product: product.id, // ID sản phẩm
+      quantity: product.quantity, // Số lượng sản phẩm
+      price: product.price, // Giá của sản phẩm
+    }));
+    await Order_details.insertMany(orderDetails); // Lưu chi tiết đơn hàng vào cơ sở dữ liệu
+
+    // Tạo địa chỉ giao hàng
+    const shippingAddressData = {
+      user: userID,
+      order: savedOrder._id,
+      address: shipping_address,
+      email,
+      phone,
+    };
+    await Shipping_address.create(shippingAddressData); // Lưu địa chỉ giao hàng
+
+    // Trả về thông tin đơn hàng đã tạo
+    return savedOrder; // Trả về đơn hàng đã lưu
   } catch (error) {
-    console.log(error);
-    return null;
+    console.error(error);
+    throw new Error("Error creating order: " + error.message); // Throw error để xử lý ở controller
   }
 };
 
@@ -35,9 +78,9 @@ const putUpdateOrderServices = async (id, data) => {
   }
 };
 
-const getOrderByIdServices = async (id) => {
+const getOrderByUserIdAPIServices = async (userId) => {
   try {
-    let result = Order.findById(id);
+    let result = Order.find({ user: userId });
     return result;
   } catch (error) {
     console.log(error);
@@ -64,6 +107,6 @@ module.exports = {
   postOrderServices,
   getALLOrderServices,
   putUpdateOrderServices,
-  getOrderByIdServices,
+  getOrderByUserIdAPIServices,
   deleteOrderServices,
 };
