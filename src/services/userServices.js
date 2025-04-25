@@ -33,7 +33,7 @@ const postCreateUser = async (data) => {
 };
 const getALLUser = async (queryString) => {
   const page = queryString.page;
-  const { filter, limit ,population} = aqp(queryString);
+  const { filter, limit, population } = aqp(queryString);
   delete filter.page;
 
   let offset = (page - 1) * limit;
@@ -47,17 +47,22 @@ const getALLUser = async (queryString) => {
 
 const putUpdateUserServices = async (data) => {
   try {
-    const hashPassword = await bcrypt.hash(data.password, 10);
-    let result = await User.updateOne(
-      { _id: data.id },
-      { ...data, password: hashPassword }
-    );
+    // Kiểm tra nếu có mật khẩu thì băm
+    if (data.password) {
+      const hashPassword = await bcrypt.hash(data.password, 10);
+      data.password = hashPassword;
+    }
+
+    // Cập nhật thông tin người dùng
+    let result = await User.updateOne({ _id: data.id }, { ...data });
+
     return result;
   } catch (error) {
     console.log(error);
     return null;
   }
 };
+
 const deleteUserServices = async (data) => {
   try {
     let result = await User.deleteById(data);

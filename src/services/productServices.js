@@ -40,10 +40,7 @@ const getProductAPI_Name_services = async (name, queryString) => {
 
     filter.category = category._id;
     if (category) {
-      const result = await Product.find(filter)
-        .skip(skip)
-        .limit(limit)
-        .exec();
+      const result = await Product.find(filter).skip(skip).limit(limit).exec();
       return result;
     }
   } catch (error) {
@@ -76,11 +73,7 @@ const getProductByIdServices = async (id) => {
 
 const deleteProductServices = async (id) => {
   try {
-    let result = await Product.findByIdAndUpdate(
-      id,
-      { deleted: true },
-      { new: true }
-    );
+    let result = await Product.deleteOne({ _id: id });
     if (!result) {
       return null; // Nếu không tìm thấy sản phẩm, trả về null
     } else return result;

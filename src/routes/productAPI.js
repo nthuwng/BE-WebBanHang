@@ -16,7 +16,7 @@ router.post("/addImgProduct", addImageProductAPI);
 router.get("/getProduct", getProductAPI);
 router.get("/getProduct/:id", getProductByIdAPI);
 router.put("/updateProduct/:id", checkAdminMiddleware, updateProductAPI);
-router.delete("/deleteProduct/:id", checkAdminMiddleware, deleteProductAPI);
+router.delete("/deleteProduct/:id", deleteProductAPI);
 router.get("/getProductByName/:name", getProductAPI_Name);
 
 module.exports = router;

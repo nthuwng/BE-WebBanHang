@@ -13,6 +13,6 @@ router.post("/createOrder", postOrderAPI);
 router.get("/getOrder", getOrderAPI);
 router.get("/getOrderByUserID/:id", getOrderByUserIdAPI);
 router.put("/updateOrder/:id", checkAdminMiddleware, updateOrderAPI);
-router.delete("/deleteOrder/:id", checkAdminMiddleware, deleteOrderAPI);
+router.delete("/deleteOrder/:id", deleteOrderAPI);
 
 module.exports = router;

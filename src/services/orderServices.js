@@ -1,56 +1,59 @@
+const mongoose = require("mongoose");
 const Order_details = require("../models/Order_details");
 const Order = require("../models/order");
 const Shipping_address = require("../models/Shipping_address");
 const aqp = require("api-query-params");
 
 const postOrderServices = async (
-  userID, // userID truyền từ frontend
+  userID,
   payment_method_id,
   total_price,
   products,
-  shipping_address,
+  shipping_address, // địa chỉ
   email,
   phone
 ) => {
   try {
-    // Kiểm tra xem userID có tồn tại không
     if (!userID) {
       throw new Error("User is not authenticated");
     }
-    // Tạo đơn hàng
+
+    // ✅ Bước 1: Tạo đơn hàng trước (chưa có shipping_address)
     const newOrderData = {
-      user: userID, // Lấy userID thay vì req.user.id
+      user: userID,
       payment_method: payment_method_id,
       total_price,
-      status: "pending", // Trạng thái đơn hàng mặc định
+      status: "pending",
     };
 
-    const savedOrder = await Order.create(newOrderData); // Lưu đơn hàng vào cơ sở dữ liệu
+    const savedOrder = await Order.create(newOrderData);
 
-    // Tạo chi tiết đơn hàng cho từng sản phẩm trong giỏ hàng
-    const orderDetails = products.map((product) => ({
-      order: savedOrder._id, // ID đơn hàng đã lưu
-      product: product.id, // ID sản phẩm
-      quantity: product.quantity, // Số lượng sản phẩm
-      price: product.price, // Giá của sản phẩm
-    }));
-    await Order_details.insertMany(orderDetails); // Lưu chi tiết đơn hàng vào cơ sở dữ liệu
-
-    // Tạo địa chỉ giao hàng
-    const shippingAddressData = {
+    // ✅ Bước 2: Tạo shipping address, gán order._id vào
+    const shippingAddressDoc = await Shipping_address.create({
       user: userID,
-      order: savedOrder._id,
+      order: savedOrder._id, // 👈 giờ mới có giá trị
       address: shipping_address,
       email,
       phone,
-    };
-    await Shipping_address.create(shippingAddressData); // Lưu địa chỉ giao hàng
+    });
 
-    // Trả về thông tin đơn hàng đã tạo
-    return savedOrder; // Trả về đơn hàng đã lưu
+    // ✅ Bước 3: Gán shipping_address._id ngược lại vào Order
+    savedOrder.shipping_address = shippingAddressDoc._id;
+    await savedOrder.save();
+
+    // ✅ Bước 4: Tạo chi tiết đơn hàng
+    const orderDetails = products.map((product) => ({
+      order: savedOrder._id,
+      product: product.id,
+      quantity: product.quantity,
+      price: product.price,
+    }));
+    await Order_details.insertMany(orderDetails);
+
+    return savedOrder;
   } catch (error) {
     console.error(error);
-    throw new Error("Error creating order: " + error.message); // Throw error để xử lý ở controller
+    throw new Error("Error creating order: " + error.message);
   }
 };
 
@@ -60,11 +63,12 @@ const getALLOrderServices = async (queryString) => {
   delete filter.page;
 
   let offset = (page - 1) * limit;
-  let result = Order.find(filter)
+  let result = await Order.find(filter)
     .populate(population)
     .skip(offset)
     .limit(limit)
     .exec();
+
   return result;
 };
 
@@ -89,17 +93,35 @@ const getOrderByUserIdAPIServices = async (userId) => {
 };
 
 const deleteOrderServices = async (id) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    let result = await Order.findByIdAndUpdate(
-      id,
-      { deleted: true },
-      { new: true }
-    );
-    if (!result) {
-      return null; // Nếu không tìm thấy sản phẩm, trả về null
-    } else return result;
+    const orderResult = await Order.deleteOne({ _id: id }).session(session);
+    if (orderResult.deletedCount === 0) {
+      await session.abortTransaction();
+      session.endSession();
+      return null;
+    }
+
+    const detailResult = await Order_details.deleteMany({
+      order: id,
+    }).session(session);
+    const addressResult = await Shipping_address.deleteMany({
+      order: id,
+    }).session(session);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      orderDeleted: orderResult.deletedCount,
+      detailsDeleted: detailResult.deletedCount,
+      addressesDeleted: addressResult.deletedCount,
+    };
   } catch (error) {
-    console.log(error);
+    await session.abortTransaction();
+    session.endSession();
+    console.error("Transaction failed:", error);
     return null;
   }
 };
