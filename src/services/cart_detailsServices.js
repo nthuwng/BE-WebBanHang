@@ -49,7 +49,6 @@ const getCart_details_ByUserIdServices = async (queryString) => {
     const carts = await Cart.find({ user: userId });
 
     if (carts.length === 0) {
-      console.log("Không có giỏ hàng nào cho người dùng");
       return [];
     }
 

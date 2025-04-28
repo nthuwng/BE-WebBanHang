@@ -3,16 +3,21 @@ const Order_details = require("../models/Order_details");
 const Order = require("../models/order");
 const Shipping_address = require("../models/Shipping_address");
 const aqp = require("api-query-params");
+const carts = require("../models/Carts");
+const Cart_details = require("../models/Cart_details");
 
 const postOrderServices = async (
   userID,
   payment_method_id,
   total_price,
   products,
-  shipping_address, // địa chỉ
+  shipping_address,
   email,
   phone
 ) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     if (!userID) {
       throw new Error("User is not authenticated");
@@ -26,20 +31,28 @@ const postOrderServices = async (
       status: "pending",
     };
 
-    const savedOrder = await Order.create(newOrderData);
+    // Sử dụng session trong tất cả các thao tác database
+    const savedOrder = await Order.create([newOrderData], { session }).then(
+      (orders) => orders[0]
+    );
 
     // ✅ Bước 2: Tạo shipping address, gán order._id vào
-    const shippingAddressDoc = await Shipping_address.create({
-      user: userID,
-      order: savedOrder._id, // 👈 giờ mới có giá trị
-      address: shipping_address,
-      email,
-      phone,
-    });
+    const shippingAddressDoc = await Shipping_address.create(
+      [
+        {
+          user: userID,
+          order: savedOrder._id,
+          address: shipping_address,
+          email,
+          phone,
+        },
+      ],
+      { session }
+    ).then((addresses) => addresses[0]);
 
     // ✅ Bước 3: Gán shipping_address._id ngược lại vào Order
     savedOrder.shipping_address = shippingAddressDoc._id;
-    await savedOrder.save();
+    await savedOrder.save({ session });
 
     // ✅ Bước 4: Tạo chi tiết đơn hàng
     const orderDetails = products.map((product) => ({
@@ -48,15 +61,28 @@ const postOrderServices = async (
       quantity: product.quantity,
       price: product.price,
     }));
-    await Order_details.insertMany(orderDetails);
+    await Order_details.insertMany(orderDetails, { session });
 
+    // ✅ Bước 5: Tìm và xóa giỏ hàng hiện tại của người dùng
+    const cart = await carts.findOne({ user: userID }).session(session);
+    if (cart) {
+      // Xóa tất cả chi tiết giỏ hàng
+      await Cart_details.deleteMany({ cart: cart._id }, { session });
+
+      // Xóa giỏ hàng
+      await carts.findByIdAndDelete(cart._id, { session });
+    }
+
+    await session.commitTransaction();
     return savedOrder;
   } catch (error) {
-    console.error(error);
+    await session.abortTransaction();
+    console.error("Transaction error:", error);
     throw new Error("Error creating order: " + error.message);
+  } finally {
+    session.endSession();
   }
 };
-
 const getALLOrderServices = async (queryString) => {
   const page = queryString.page;
   const { filter, limit, population } = aqp(queryString);
@@ -84,7 +110,10 @@ const putUpdateOrderServices = async (id, data) => {
 
 const getOrderByUserIdAPIServices = async (userId) => {
   try {
-    let result = Order.find({ user: userId });
+    let result = await Order.find({ user: userId })
+      .populate("shipping_address") // Populate nếu đây là mối quan hệ với collection khác
+      .populate("payment_method") // Populate nếu đây là mối quan hệ với collection khác
+      .populate("user"); // Populate user nếu cần
     return result;
   } catch (error) {
     console.log(error);

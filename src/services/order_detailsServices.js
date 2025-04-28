@@ -27,7 +27,9 @@ const getALLOrder_detailsServices = async (queryString) => {
 
 const putUpdateOrder_detailsServices = async (id, data) => {
   try {
-    let result = await Order_details.findByIdAndUpdate(id, data, { new: true }).exec();
+    let result = await Order_details.findByIdAndUpdate(id, data, {
+      new: true,
+    }).exec();
     return result;
   } catch (error) {
     console.log(error);
@@ -35,19 +37,34 @@ const putUpdateOrder_detailsServices = async (id, data) => {
   }
 };
 
-const getOrder_detailsByIdServices = async (id) => {
+const getOrder_detailsByIdServices = async (orderId) => {
   try {
-    let result = Order_details.findById(id);
+    if (!orderId) {
+      console.log("Order ID is missing or invalid");
+      return null;
+    }
+
+    let result = await Order_details.find({ order: orderId }).populate(
+      "product"
+    );
+
+    if (!result || result.length === 0) {
+      console.log("No order details found for ID:", orderId);
+    }
+
     return result;
   } catch (error) {
-    console.log(error);
+    console.error("Error in service:", error);
     return null;
   }
 };
-
 const deleteOrder_detailsServices = async (id) => {
   try {
-    let result = await Order_details.findByIdAndUpdate(id,{ deleted: true },{ new: true });
+    let result = await Order_details.findByIdAndUpdate(
+      id,
+      { deleted: true },
+      { new: true }
+    );
     if (!result) {
       return null; // Nếu không tìm thấy sản phẩm, trả về null
     } else return result;

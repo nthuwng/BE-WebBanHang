@@ -46,6 +46,17 @@ const getOrderAPI = async (req, res) => {
   });
 };
 
+const getOrderByUserIdAPI = async (req, res) => {
+  let userId = req.params.id;
+  let result = await getOrderByUserIdAPIServices(userId);
+
+  return res.status(200).json({
+    length: result.length,
+    errorCode: 0,
+    data: result,
+  });
+};
+
 const updateOrderAPI = async (req, res) => {
   try {
     let id = req.params.id;
@@ -60,17 +71,6 @@ const updateOrderAPI = async (req, res) => {
     console.log(error);
     res.status(500).json({ errorCode: 1, msg: "Lỗi server" });
   }
-};
-
-const getOrderByUserIdAPI = async (req, res) => {
-  let userId = req.params.id;
-  let result = await getOrderByUserIdAPIServices(userId);
-
-  return res.status(200).json({
-    length: result.length,
-    errorCode: 0,
-    data: result,
-  });
 };
 
 const deleteOrderAPI = async (req, res) => {
