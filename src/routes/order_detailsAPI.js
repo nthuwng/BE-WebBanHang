@@ -6,7 +6,7 @@ const {
   getOrder_detailsByOrderAPI,
   updateOrder_detailsAPI,
   deleteOrder_detailsAPI,
-} = require("../controllers/Order_detailsController");
+} = require("../controllers/order_detailsController");
 const checkAdminMiddleware = require("../middleware/authMiddleware");
 
 router.post("/createOrder_details", postOrder_detailsAPI);

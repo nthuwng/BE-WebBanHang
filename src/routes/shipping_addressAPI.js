@@ -6,7 +6,7 @@ const {
   getShipping_addressByIdAPI,
   updateShipping_addressAPI,
   deleteShipping_addressAPI,
-} = require("../controllers/Shipping_addressController");
+} = require("../controllers/shipping_addressController");
 const checkAdminMiddleware = require("../middleware/authMiddleware");
 
 router.post("/createShipping_address", postShipping_addressAPI);
