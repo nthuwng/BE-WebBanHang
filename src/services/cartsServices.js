@@ -1,7 +1,7 @@
-const Cart = require("../models/Carts");
+const Cart = require("../models/carts");
 const User = require("../models/user");
 const Product = require("../models/product");
-const CartDetail = require("../models/Cart_details");
+const CartDetail = require("../models/cart_details");
 
 const aqp = require("api-query-params");
 

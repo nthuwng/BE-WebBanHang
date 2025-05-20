@@ -1,4 +1,4 @@
-const Shipping_address = require("../models/Shipping_address");
+const Shipping_address = require("../models/shipping_address");
 const aqp = require("api-query-params");
 
 const postShipping_addressServices = async (data) => {

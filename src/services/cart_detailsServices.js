@@ -1,6 +1,6 @@
 const { default: mongoose } = require("mongoose");
-const Cart_details = require("../models/Cart_details");
-const Cart = require("../models/Carts");
+const Cart_details = require("../models/cart_details");
+const Cart = require("../models/carts");
 const Product = require("../models/product");
 const User = require("../models/user");
 

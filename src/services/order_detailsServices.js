@@ -1,4 +1,4 @@
-const Order_details = require("../models/Order_details");
+const Order_details = require("../models/order_details");
 const aqp = require("api-query-params");
 
 const postOrder_detailsServices = async (data) => {

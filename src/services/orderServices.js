@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 const Order_details = require("../models/order_details");
 const Order = require("../models/order");
-const Shipping_address = require("../models/Shipping_address");
+const Shipping_address = require("../models/shipping_address");
 const aqp = require("api-query-params");
-const carts = require("../models/Carts");
-const Cart_details = require("../models/Cart_details");
+const carts = require("../models/carts");
+const Cart_details = require("../models/cart_details");
 
 const postOrderServices = async (
   userID,
