@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Order_details = require("../models/Order_details");
+const Order_details = require("../models/order_details");
 const Order = require("../models/order");
 const Shipping_address = require("../models/Shipping_address");
 const aqp = require("api-query-params");
