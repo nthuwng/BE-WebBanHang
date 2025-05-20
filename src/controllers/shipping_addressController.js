@@ -4,7 +4,7 @@ const {
   putUpdateShipping_addressServices,
   getShipping_addressByIdServices,
   deleteShipping_addressServices,
-} = require("../services/Shipping_addressServices");
+} = require("../services/shipping_addressServices");
 
 const postShipping_addressAPI = async (req, res) => {
   try {

@@ -6,7 +6,7 @@ const {
   deleteCartServices,
   handleAddProductToCart,
   getCartByUserIDServices,
-} = require("../services/CartsServices");
+} = require("../services/cartsServices");
 
 const postCartAPI = async (req, res) => {
   try {
