@@ -7,7 +7,9 @@ const routers = require("./routes/web");
 const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 3000;
-const hostname = process.env.HOST_NAME || "localhost";
+// const hostname = process.env.HOST_NAME || "localhost";
+const hostname = "0.0.0.0";
+
 const path = require("path");
 
 app.use("/images", express.static(path.join(__dirname, "public/images")));
